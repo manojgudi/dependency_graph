@@ -1,4 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+module GetFileMap where
+
 import Control.Monad
 
 import qualified Data.Map as M
@@ -9,11 +11,7 @@ import HSH (run)
 import System.Directory (doesFileExist)
 import System.IO
 
-
-type NodeNumber       = Int
 type CompleteFilePath = String
-type LookupFNumber    = M.Map NodeNumber CompleteFilePath
-type LookupFPath      = M.Map CompleteFilePath NodeNumber
 type FileNodes        = M.Map CompleteFilePath ([CompleteFilePath])
 
 {- Once you go IO
@@ -23,7 +21,6 @@ listPythonFiles :: IO [String]
 listPythonFiles = do
     myString <- run $ "find -name \"*.py\" " :: IO String
     return $ lines myString
-
 
 {- Takes a line and returns True if the line starts with "from" keyword
  - else it returns False
@@ -72,8 +69,9 @@ getFilePath :: String -> String
 getFilePath importLine = "./" ++ (replace "." "/" (words importLine !! 1) ) ++ ".py"
 
 
-
+{-
 main = do 
     pythonFiles <- listPythonFiles
     out <- moduleTree pythonFiles
     putStrLn $ M.showTree out
+-}
