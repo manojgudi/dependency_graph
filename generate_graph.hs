@@ -19,15 +19,16 @@ type LookupNodeNumber = M.Map NodeNumber CompleteFilePath
 type LookupFilePath   = M.Map CompleteFilePath NodeNumber
 
 
-graph :: DotGraph Int
-graph = graphElemsToDot graphParams nodes edges
+graph :: [(Int, Int, Bool)] -> DotGraph Int
+graph edges = graphElemsToDot graphParams nodes edges
 
 graphParams :: GraphvizParams Int String Bool () String
-graphParams = defaultParams { globalAttributes = gStyle }
+graphParams = defaultParams --{ globalAttributes = gStyle }
 
 nodes :: [(Int, String)]
 nodes = map (\x -> (x, "")) [1..4]
 
+{-
 edges :: [(Int, Int, Bool)]
 edges = [ (1, 3, True)
         , (1, 4, True)
@@ -35,6 +36,7 @@ edges = [ (1, 3, True)
         , (2, 4, True)
         , (3, 4, True)
         , (4, 3, True) ]
+-}
 
 {-
  - Returns the index of the element in a listOfElements
@@ -67,14 +69,23 @@ convertFileNode fileNodes lookupFilePath = [ (fromMaybe (-1) (M.lookup x lookupF
  - Takes numberNodes and flattens the data to resemble one to one mapping
  - -}
 flattenData :: [(Int, [Int], Bool)] -> [(Int, Int, Bool)]
-flattenData numberNode = [ expandData x!!0 x!!1 x!!2  | x <- numberNode ]
+flattenData numberNode =  foldl1 (++) [ expandData (fst' x) (snd' x) (thd' x) | x <- numberNode ]
 
 {-
  - Could be made into a lambda function | but this is neater
  - used in flattenData
  - -}
-expandData :: Int -> [Int] -> Bool -> [ Int, Int, Bool ]
-expandData a b c = [ (a,x,c) | x <- b ]
+expandData :: Int -> [Int] -> Bool -> [(Int, Int, Bool)]
+expandData a [] c     = []
+expandData a (x:xs) c = (a, x, c) : (expandData a xs c)
+
+
+{-
+ - Is there a better way to get elements of this 3 element tuple
+ - -}
+fst' (x, _, _) = x
+snd' (_, y, _) = y
+thd' (_, _, z) = z
 
 gStyle :: [GlobalAttributes]
 gStyle = [ GraphAttrs [RankDir FromLeft, Splines SplineEdges, FontName "courier"]
@@ -87,6 +98,7 @@ main = do
     pythonFiles <- listPythonFiles
     fileNodes <- moduleTree pythonFiles
     let numberNodes = convertFileNode fileNodes $ createLookupFilePath fileNodes
-    print numberNodes
+    let plotableData = flattenData numberNodes
+    addExtension (runGraphviz $ graph plotableData) Png "wow"
     return numberNodes
 --main = addExtension (runGraphviz graph) Png "graph"
