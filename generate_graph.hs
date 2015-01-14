@@ -18,25 +18,11 @@ type NodeNumber       = Int
 type LookupNodeNumber = M.Map NodeNumber CompleteFilePath
 type LookupFilePath   = M.Map CompleteFilePath NodeNumber
 
-
 graph :: [(Int, Int, Bool)] -> DotGraph Int
 graph edges = graphElemsToDot graphParams nodes edges
 
 graphParams :: GraphvizParams Int String Bool () String
 graphParams = defaultParams --{ globalAttributes = gStyle }
-
-nodes :: [(Int, String)]
-nodes = map (\x -> (x, "")) [1..4]
-
-{-
-edges :: [(Int, Int, Bool)]
-edges = [ (1, 3, True)
-        , (1, 4, True)
-        , (2, 3, True)
-        , (2, 4, True)
-        , (3, 4, True)
-        , (4, 3, True) ]
--}
 
 {-
  - Returns the index of the element in a listOfElements
@@ -60,8 +46,8 @@ createLookupFilePath fileNodes = (M.fromList lookupFilePath)
     where lookupFilePath = [ (x, getIndex x (M.keys fileNodes) ) | x <- M.keys fileNodes ] 
 
 {-
- - Converts fileNodes mapping to equaivalent number mapping called numberNodes
--}
+ - Converts fileNodes mapping to equaivalent number mapping called numberNodes 
+ - -}
 convertFileNode :: FileNodes -> LookupFilePath -> [(Int, [Int], Bool)]
 convertFileNode fileNodes lookupFilePath = [ (fromMaybe (-1) (M.lookup x lookupFilePath), [ fromMaybe (-1) (M.lookup z lookupFilePath ) | z <- y ] , True) | (x,y) <- (M.toList fileNodes) ]
 
@@ -93,6 +79,9 @@ gStyle = [ GraphAttrs [RankDir FromLeft, Splines SplineEdges, FontName "courier"
          , EdgeAttrs  [color Black, style dotted]
         ]
 
+{-
+ - The return is useless
+ - -}
 main :: IO [(Int, [Int], Bool)]
 main = do 
     pythonFiles <- listPythonFiles
