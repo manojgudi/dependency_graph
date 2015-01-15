@@ -7,6 +7,9 @@ dependency graph
 WHERE the fuck is its cabal file? 
 > Sorry, laziness triumphs the need to write cabal file
 
+EDIT: Added dependency_graph.cabal file
+
+
 How to compile this?
 > You will require graphviz module(on ghc7.6.3), will update this section soon
 
