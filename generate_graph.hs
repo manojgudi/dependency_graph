@@ -18,11 +18,16 @@ type NodeNumber       = Int
 type LookupNodeNumber = M.Map NodeNumber CompleteFilePath
 type LookupFilePath   = M.Map CompleteFilePath NodeNumber
 
-graph :: [(Int, Int, Bool)] -> DotGraph Int
-graph edges = graphElemsToDot graphParams nodes edges
+{-
+ - -}
+nodes :: [(Int, [Int], Bool)] -> [(Int, String)]
+nodes numberNodes = map (\x -> (x, "")) [1..(length numberNodes)]
+
+graph :: [(Int, [Int], Bool)] -> DotGraph Int
+graph numberNodes = graphElemsToDot graphParams (nodes numberNodes) (flattenData numberNodes)
 
 graphParams :: GraphvizParams Int String Bool () String
-graphParams = defaultParams --{ globalAttributes = gStyle }
+graphParams = defaultParams { globalAttributes = gStyle }
 
 {-
  - Returns the index of the element in a listOfElements
@@ -86,8 +91,7 @@ main :: IO [(Int, [Int], Bool)]
 main = do 
     pythonFiles <- listPythonFiles
     fileNodes <- moduleTree pythonFiles
-    let numberNodes = convertFileNode fileNodes $ createLookupFilePath fileNodes
-    let plotableData = flattenData numberNodes
-    addExtension (runGraphviz $ graph plotableData) Png "wow"
+    let numberNodes  = convertFileNode fileNodes $ createLookupFilePath fileNodes
+    addExtension (runGraphviz $ graph numberNodes) Png "generated_graph"
     return numberNodes
 --main = addExtension (runGraphviz graph) Png "graph"
